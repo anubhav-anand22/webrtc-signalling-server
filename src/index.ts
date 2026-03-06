@@ -1,9 +1,11 @@
-import WebSocket, { WebSocketServer } from "ws";
-import { v4 as uuid } from "uuid";
+import http from "http";
+import { WebSocketServer, WebSocket } from "ws";
 
-const port = process.env.PORT || "3000";
+const port = parseInt(process.env.PORT || "3000");
 
-const wss = new WebSocketServer({ port: parseInt(port) });
+const server = http.createServer();
+
+const wss = new WebSocketServer({ server });
 
 type Client = {
   id: string;
@@ -18,11 +20,14 @@ wss.on("connection", (ws) => {
   ws.on("message", (raw) => {
     const msg = JSON.parse(raw.toString());
 
-    // First message must be register
     if (msg.type === "register") {
       clientId = msg.id;
-      if (!clientId)
-        return console.error("No client id in server.js on(message) message type register");
+
+      if (!clientId) {
+        console.error("No client id provided");
+        return;
+      }
+
       clients.set(clientId, { id: clientId, ws });
       console.log("Registered:", clientId);
       return;
@@ -41,4 +46,6 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("Signaling server running on ws://localhost:3000");
+server.listen(port, () => {
+  console.log("Signaling server running on port", port);
+});
