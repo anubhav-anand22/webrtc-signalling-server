@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = __importDefault(require("http"));
 const ws_1 = require("ws");
 const port = parseInt(process.env.PORT || "3000");
-const server = http_1.default.createServer();
+const server = http_1.default.createServer((req, res) => {
+    console.log("OK");
+    res.writeHead(200);
+    res.end("OK");
+});
 const wss = new ws_1.WebSocketServer({ server });
 const clients = new Map();
 wss.on("connection", (ws) => {

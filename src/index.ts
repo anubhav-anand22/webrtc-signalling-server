@@ -3,7 +3,11 @@ import { WebSocketServer, WebSocket } from "ws";
 
 const port = parseInt(process.env.PORT || "3000");
 
-const server = http.createServer();
+const server = http.createServer((req, res) => {
+  console.log("OK")
+  res.writeHead(200);
+  res.end("OK");
+});
 
 const wss = new WebSocketServer({ server });
 
