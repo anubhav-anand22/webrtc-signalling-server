@@ -1,18 +1,24 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const http_1 = __importDefault(require("http"));
 const ws_1 = require("ws");
-const port = process.env.PORT || "3000";
-const wss = new ws_1.WebSocketServer({ port: parseInt(port) });
+const port = parseInt(process.env.PORT || "3000");
+const server = http_1.default.createServer();
+const wss = new ws_1.WebSocketServer({ server });
 const clients = new Map();
 wss.on("connection", (ws) => {
     let clientId = null;
     ws.on("message", (raw) => {
         const msg = JSON.parse(raw.toString());
-        // First message must be register
         if (msg.type === "register") {
             clientId = msg.id;
-            if (!clientId)
-                return console.error("No client id in server.js on(message) message type register");
+            if (!clientId) {
+                console.error("No client id provided");
+                return;
+            }
             clients.set(clientId, { id: clientId, ws });
             console.log("Registered:", clientId);
             return;
@@ -28,4 +34,6 @@ wss.on("connection", (ws) => {
         }
     });
 });
-console.log("Signaling server running on ws://localhost:3000");
+server.listen(port, () => {
+    console.log("Signaling server running on port", port);
+});
